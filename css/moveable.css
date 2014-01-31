@@ -1,1 +1,11 @@
-.moveable { }
+.moveable {
+  
+}
+.moveable:hover {
+  outline: 1px solid white;
+}
+.moving { 
+  cursor: move; 
+  outline: 1px solid black;
+  box-shadow: 0px 0px 3px #333;
+}
