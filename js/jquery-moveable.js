@@ -1,17 +1,21 @@
-(function($)
-  $.fn.moveable = function(settings) {
-    settings = $.extend({ }, settings);
+(function($) {
+  $.fn.moveable = function(options) {
+    options = $.extend({ 
+      VERSION: '0.2b1',
+      lock   : null,
+      onMove : function(position) { }
+    }, options);
     var $objs = this;
-    $objs.addClass('moveable');
+    $objs.addClass('ui-moveable').css({ position: 'absolute' });
     return $objs.each(function(i) {
       var $obj = $(this);
       var moving = false;
-      var difX = 0, difY = 0, oldX = 0, oldY = 0;
+      var difX = difY = oldX = oldY = 0, pos = null;
       $obj.on('mousedown', function(evt) {
         evt.preventDefault();
         evt.stopPropagation();
         moving = true;
-        $obj.addClass('moving');
+        $obj.addClass('ui-moving');
         oldX = evt.pageX;
         oldY = evt.pageY;
         $objs.css({'z-index': 1});
@@ -22,26 +26,28 @@
           evt.preventDefault();
           evt.stopPropagation();
           
-          difX = evt.pageX - oldX;
-          difY = evt.pageY - oldY;
+          difX = options.lock == 'x' ? 0 : evt.pageX - oldX;
+          difY = options.lock == 'y' ? 0 : evt.pageY - oldY;
           
-          $obj.css({left: '+='+ difX + 'px', top: '+='+ difY +'px'});
+          pos = $obj.offset();
+          
+          $obj.css({left: (pos.left + difX) + 'px', top: (pos.top + difY) +'px'});
           
           oldX = evt.pageX;
           oldY = evt.pageY;
+          
+          options.onMove.call(this, { left: pos.left + difX, top: pos.top + difY });
         }
-      }).on('mouseup', function(evt) {
+      }).on('mouseup mouseleave', function(evt) {
         if(moving) {
           evt.preventDefault();
           evt.stopPropagation();
           moving = false;
           difX = difY = oldX = oldY = 0;
-          $obj.removeClass('moving');
-          // release obj
+          $obj.removeClass('ui-moving');
         }
-      });
+      })
     });
   };
-)(jQuery);
-
-// $('.box').moveable();
+  // $('.box').moveable({ lock: 'y' });
+})(jQuery);
